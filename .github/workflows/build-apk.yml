@@ -30,10 +30,10 @@ jobs:
       - name: Prepare APK output
         run: |
           mkdir -p release-output
-          cp app/build/outputs/apk/debug/app-debug.apk release-output/VDK-Net-Limiter-Pro-v2.0.apk
+          cp app/build/outputs/apk/debug/app-debug.apk release-output/VDK-Net-Limiter-Pro-v2.1.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: VDK-Net-Limiter-Pro-APK
-          path: release-output/VDK-Net-Limiter-Pro-v2.0.apk
+          path: release-output/VDK-Net-Limiter-Pro-v2.1.apk
