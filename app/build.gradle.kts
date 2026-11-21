@@ -11,8 +11,8 @@ android {
         applicationId = "com.vdk.netlimiter"
         minSdk = 24
         targetSdk = 34
-        versionCode = 2
-        versionName = "2.0-VDK"
+        versionCode = 3
+        versionName = "2.1-VDK"
     }
 
     buildTypes {

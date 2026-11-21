@@ -228,13 +228,13 @@ class MainActivity : AppCompatActivity() {
             appendLine("Vì Android không Root không cho app can thiệp trực tiếp vào driver Hotspot, app dùng cơ chế Local Proxy (cổng 8080):")
             appendLine()
             appendLine("1. Bật Điểm phát sóng di động (Hotspot 4G) trên máy bạn.")
-            appendLine("2. Bấm "BẬT PROXY BÓP BĂNG THÔNG" trong app.")
+            appendLine("2. Bấm \"BẬT PROXY BÓP BĂNG THÔNG\" trong app.")
             appendLine("3. Trên máy bắt Wi-Fi (Android / iPhone / PC):")
             appendLine("   • Android: Cài đặt Wi-Fi -> chạm tên Wi-Fi -> Sửa -> Nâng cao -> Proxy: Thủ công -> nhập IP ($currentPrimaryIp) & Cổng 8080 -> Lưu.")
             appendLine("   • iPhone: Cài đặt Wi-Fi -> bấm chữ (i) -> Định cấu hình Proxy -> Thủ công -> nhập Máy chủ ($currentPrimaryIp) & Cổng 8080 -> Lưu.")
             appendLine("   • Windows PC: Settings -> Network & Internet -> Proxy -> Manual proxy -> nhập IP & Port 8080.")
-            appendLine("4. Khi máy kia mở web/TikTok/YouTube, máy sẽ tự hiện trong danh sách với nhãn "QUA PROXY".")
-            appendLine("5. Bấm "Chọn mức bóp / Đổi tên" để giới hạn tốc độ riêng hoặc bấm "Chặn mạng" để ngắt ngay lập tức!")
+            appendLine("4. Khi máy kia mở web/TikTok/YouTube, máy sẽ tự hiện trong danh sách với nhãn \"QUA PROXY\".")
+            appendLine("5. Bấm \"Chọn mức bóp / Đổi tên\" để giới hạn tốc độ riêng hoặc bấm \"Chặn mạng\" để ngắt ngay lập tức!")
         }
 
         AlertDialog.Builder(this)

@@ -41,6 +41,7 @@ class ProxyService : Service() {
     private var wakeLock: PowerManager.WakeLock? = null
     private val workerPool = Executors.newCachedThreadPool()
     private var tickerPool: ScheduledExecutorService? = null
+    private val whitespaceRegex = Regex("\\s+")
 
     override fun onCreate() {
         super.onCreate()
@@ -168,7 +169,7 @@ class ProxyService : Service() {
             val clientOut = client.getOutputStream()
 
             val requestLine = readHeaderLine(clientIn) ?: return
-            val parts = requestLine.trim().split(" ")
+            val parts = requestLine.trim().split(whitespaceRegex)
             if (parts.size < 3) return
 
             val method = parts[0].uppercase()
@@ -176,9 +177,9 @@ class ProxyService : Service() {
             val httpVersion = parts[2]
 
             if (method == "CONNECT") {
-                val hostPort = target.split(":")
-                val host = hostPort[0]
-                val port = if (hostPort.size > 1) hostPort[1].toIntOrNull() ?: 443 else 443
+                val colonIdx = target.lastIndexOf(':')
+                val host = if (colonIdx > 0) target.substring(0, colonIdx) else target
+                val port = if (colonIdx > 0) target.substring(colonIdx + 1).toIntOrNull() ?: 443 else 443
                 DeviceManager.recordDomain(clientIp, host)
 
                 while (true) {
@@ -198,10 +199,8 @@ class ProxyService : Service() {
                 remoteSocket.tcpNoDelay = true
                 DeviceManager.attachRemoteSocket(clientIp, remoteSocket)
 
-                clientOut.write("HTTP/1.1 200 Connection Established
-Proxy-Agent: VDK-Net-Limiter
-
-".toByteArray())
+                val establishedResp = "HTTP/1.1 200 Connection Established\r\nProxy-Agent: VDK-Net-Limiter\r\n\r\n"
+                clientOut.write(establishedResp.toByteArray())
                 clientOut.flush()
 
                 val remoteIn = remoteSocket.getInputStream()
@@ -226,6 +225,12 @@ Proxy-Agent: VDK-Net-Limiter
                 try { downloadFuture.get() } catch (_: Exception) {}
 
             } else {
+                // Nếu người dùng mở trực tiếp http://<ip>:8080 bằng trình duyệt thì báo trạng thái Proxy
+                if (target.startsWith("/")) {
+                    sendStatusPage(clientOut, clientIp)
+                    return
+                }
+
                 val parsedUrl = try {
                     URL(target)
                 } catch (_: Exception) {
@@ -237,8 +242,7 @@ Proxy-Agent: VDK-Net-Limiter
                 DeviceManager.recordDomain(clientIp, host)
 
                 val headerBuilder = StringBuilder()
-                headerBuilder.append("$method $path $httpVersion
-")
+                headerBuilder.append("$method $path $httpVersion\r\n")
 
                 var contentLength = 0L
                 var hasHostHeader = false
@@ -253,16 +257,12 @@ Proxy-Agent: VDK-Net-Limiter
                     if (lower.startsWith("content-length:")) {
                         contentLength = line.substringAfter(":").trim().toLongOrNull() ?: 0L
                     }
-                    headerBuilder.append(line).append("
-")
+                    headerBuilder.append(line).append("\r\n")
                 }
                 if (!hasHostHeader) {
-                    headerBuilder.append("Host: $host
-")
+                    headerBuilder.append("Host: $host\r\n")
                 }
-                headerBuilder.append("Connection: close
-
-")
+                headerBuilder.append("Connection: close\r\n\r\n")
 
                 if (DeviceManager.isBlocked(clientIp)) {
                     sendForbidden(clientOut)
@@ -293,16 +293,28 @@ Proxy-Agent: VDK-Net-Limiter
         }
     }
 
+    private fun sendStatusPage(out: OutputStream, clientIp: String) {
+        try {
+            val body = "<html><head><meta charset='utf-8'></head><body style='font-family:sans-serif;background:#0B1120;color:#F8FAFC;padding:24px;'>" +
+                "<h2 style='color:#00E676;'>VDK Net Limiter Pro - Proxy Active</h2>" +
+                "<p>IP của bạn: <b>$clientIp</b></p>" +
+                "<p>Proxy đang hoạt động bình thường trên cổng <b>$PORT</b>.</p></body></html>"
+            val bodyBytes = body.toByteArray(Charsets.UTF_8)
+            val resp = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: ${bodyBytes.size}\r\nConnection: close\r\n\r\n"
+            out.write(resp.toByteArray(Charsets.UTF_8))
+            out.write(bodyBytes)
+            out.flush()
+        } catch (_: Exception) {
+        }
+    }
+
     private fun sendForbidden(out: OutputStream) {
         try {
-            val body = "<html><body><h2>Access Blocked by VDK Net Limiter</h2></body></html>"
-            val resp = "HTTP/1.1 403 Forbidden
-Content-Type: text/html
-Content-Length: ${body.length}
-Connection: close
-
-$body"
-            out.write(resp.toByteArray())
+            val body = "<html><head><meta charset='utf-8'></head><body><h2>Access Blocked by VDK Net Limiter</h2></body></html>"
+            val bodyBytes = body.toByteArray(Charsets.UTF_8)
+            val resp = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: ${bodyBytes.size}\r\nConnection: close\r\n\r\n"
+            out.write(resp.toByteArray(Charsets.UTF_8))
+            out.write(bodyBytes)
             out.flush()
         } catch (_: Exception) {
         }
@@ -365,9 +377,8 @@ $body"
         while (true) {
             val c = input.read()
             if (c == -1) return if (sb.isEmpty()) null else sb.toString()
-            if (c == '
-'.code) {
-                if (prev == ''.code && sb.isNotEmpty()) {
+            if (c == '\n'.code) {
+                if (prev == '\r'.code && sb.isNotEmpty()) {
                     sb.setLength(sb.length - 1)
                 }
                 return sb.toString()

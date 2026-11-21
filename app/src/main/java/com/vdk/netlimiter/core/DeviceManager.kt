@@ -29,7 +29,7 @@ object DeviceManager {
         val totalBytes = AtomicLong(0L)
         val windowBytes = AtomicLong(0L)
         val limiter = TokenBucketLimiter()
-        val openSockets: MutableSet<Socket> = ConcurrentHashMap.newKeySet()
+        val openSockets: MutableSet<Socket> = ConcurrentHashMap.newKeySet<Socket>()
     }
 
     private val devices = ConcurrentHashMap<String, DeviceRuntimeState>()

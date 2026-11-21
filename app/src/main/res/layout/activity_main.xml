@@ -47,7 +47,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="38dp"
                 android:minWidth="0dp"
-                android:paddingHorizontal="12dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
                 android:text="Hướng dẫn"
                 android:textColor="@color/accent_blue"
                 android:textSize="12sp" />
@@ -136,7 +137,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="38dp"
                     android:minWidth="0dp"
-                    android:paddingHorizontal="14dp"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
                     android:text="Copy"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -227,7 +229,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="38dp"
                 android:minWidth="0dp"
-                android:paddingHorizontal="14dp"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
                 android:text="Quét Hotspot"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -255,9 +258,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:gravity="center"
-                android:text="1. Bấm BẬT PROXY ở trên.
-2. Bấm Quét Hotspot để tìm máy đang bắt Wi-Fi.
-3. Nhập IP &amp; Port 8080 vào Proxy Wi-Fi máy kia để kiểm soát và bóp tốc độ."
+                android:text="1. Bấm BẬT PROXY ở trên.\n2. Bấm Quét Hotspot để tìm máy đang bắt Wi-Fi.\n3. Nhập IP &amp; Port 8080 vào Proxy Wi-Fi máy kia để kiểm soát và bóp tốc độ."
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>

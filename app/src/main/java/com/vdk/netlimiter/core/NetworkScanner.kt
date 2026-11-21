@@ -16,6 +16,8 @@ object NetworkScanner {
         val allLocalIps: List<String>
     )
 
+    private val whitespaceRegex = Regex("\\s+")
+
     private val ouiMap = mapOf(
         "00:1A:11" to "Google",
         "3C:5A:B4" to "Google",
@@ -98,7 +100,7 @@ object NetworkScanner {
             val arpFile = File("/proc/net/arp")
             if (arpFile.exists() && arpFile.canRead()) {
                 arpFile.readLines().drop(1).forEach { line ->
-                    val parts = line.trim().split(Regex("\s+"))
+                    val parts = line.trim().split(whitespaceRegex)
                     if (parts.size >= 4) {
                         val ip = parts[0]
                         val mac = parts[3]
@@ -117,7 +119,7 @@ object NetworkScanner {
                 var line: String?
                 while (reader.readLine().also { line = it } != null) {
                     val text = line?.trim() ?: continue
-                    val parts = text.split(Regex("\s+"))
+                    val parts = text.split(whitespaceRegex)
                     if (parts.isNotEmpty() && parts[0].count { it == '.' } == 3) {
                         val ip = parts[0]
                         val llIdx = parts.indexOf("lladdr")
